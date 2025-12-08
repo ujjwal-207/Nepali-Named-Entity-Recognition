@@ -1,0 +1,28 @@
+# Virtual Environment
+llm_env/
+venv/
+env/
+nner-research/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# API Keys and Environment Variables
+.env
+*.key
+config.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Data files (if large)
+*.csv
+*.json
+data/
