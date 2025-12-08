@@ -118,8 +118,9 @@ def main():
     print(f"  - Estimated time: {args.epochs * 1}+ hours on CPU")
     print("="*70)
     
-
-    train_file = Path(args.data_dir) / "EverestNER-train-bio"
+    
+    train_file = Path(args.data_dir) / "EverestNER-train-bio.txt"
+    print(train_file)
     if not train_file.exists():
         print(f"\n❌ ERROR: Training file not found!")
         print(f"Expected location: {train_file}")

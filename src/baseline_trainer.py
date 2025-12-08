@@ -22,7 +22,7 @@ from transformers import (
     DataCollatorForTokenClassification,
     EarlyStoppingCallback
 )
-from datasets import load_metric
+import evaluate  # Replaced load_metric with evaluate
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -169,9 +169,22 @@ class NERTrainer:
         """Extract unique labels from training data"""
         labels = set(['O'])
         
-        train_file = self.data_dir / "EverestNER-train-bio"
+        # Try different possible filenames
+        possible_files = [
+            "EverestNER-train-bio.txt",
+            "EverestNER-train-bio",
+            "train.bio",
+            "train.txt"
+        ]
         
-        if train_file.exists():
+        train_file = None
+        for filename in possible_files:
+            test_path = self.data_dir / filename
+            if test_path.exists():
+                train_file = test_path
+                break
+        
+        if train_file and train_file.exists():
             with open(train_file, 'r', encoding='utf-8') as f:
                 for line in f:
                     line = line.strip()
@@ -202,12 +215,26 @@ class NERTrainer:
         print("NOTE: Training uses ORIGINAL BIO/TXT files, NOT JSON!")
         print(f"{'='*60}")
         
-        # Train - ALWAYS required
-        train_file = self.data_dir / "EverestNER-train-bio"
-        if not train_file.exists():
+        # Try different possible filenames for train
+        possible_train_files = [
+            "EverestNER-train-bio",
+            "EverestNER-train-bio.txt",
+            "train.bio",
+            "train.txt"
+        ]
+        
+        train_file = None
+        for filename in possible_train_files:
+            test_path = self.data_dir / filename
+            if test_path.exists():
+                train_file = test_path
+                break
+        
+        if not train_file:
             raise FileNotFoundError(
-                f"\n❌ Training file not found: {train_file}\n"
-                f"Please ensure your BIO format file is at this location.\n"
+                f"\n❌ Training file not found in: {self.data_dir}\n"
+                f"Tried: {', '.join(possible_train_files)}\n"
+                f"Please ensure your BIO format file is in this location.\n"
                 f"Format: token TAG (one per line, empty line between sentences)"
             )
         
@@ -217,6 +244,9 @@ class NERTrainer:
         
         # Validation
         val_file = self.data_dir / "EverestNER-val-bio"
+        if not val_file.exists():
+            val_file = self.data_dir / "EverestNER-val-bio.txt"
+        
         if val_file.exists():
             self.val_dataset = NERDataset(
                 val_file, self.tokenizer, self.label2id, self.max_length
@@ -233,6 +263,9 @@ class NERTrainer:
         
         # Test (optional)
         test_file = self.data_dir / "EverestNER-test-bio"
+        if not test_file.exists():
+            test_file = self.data_dir / "EverestNER-test-bio.txt"
+        
         if test_file.exists():
             self.test_dataset = NERDataset(
                 test_file, self.tokenizer, self.label2id, self.max_length
@@ -279,7 +312,8 @@ class NERTrainer:
     
     def compute_metrics(self, pred):
         """Compute F1, precision, recall"""
-        metric = load_metric("seqeval")
+        # Use evaluate instead of datasets.load_metric
+        metric = evaluate.load("seqeval")
         
         predictions, labels = pred
         predictions = np.argmax(predictions, axis=2)
