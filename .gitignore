@@ -23,6 +23,5 @@ config.ini
 *.swo
 
 # Data files (if large)
-*.csv
-*.json
-data/
+# *.csv
+# *.json
