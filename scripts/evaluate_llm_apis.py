@@ -152,7 +152,7 @@ Format: [{"text": "entity", "type": "TYPE"}]"""
                 in_tok = response.usage.prompt_tokens
                 out_tok = response.usage.completion_tokens
             
-            # (Keep your existing gpt4, claude, gemini blocks here...)
+          
             elif self.model_name == "gpt4":
                 response = self.client.chat.completions.create(
                     model=self.model_id,
