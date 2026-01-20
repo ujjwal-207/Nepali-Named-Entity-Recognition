@@ -32,7 +32,7 @@ class ResultsComparator:
                         'type': 'Fine-tuned'
                     }
             
-            print(f"✓ Loaded {len(self.bert_results)} fine-tuned model results")
+            print(f" Loaded {len(self.bert_results)} fine-tuned model results")
         else:
             print(f" No BERT results found at {comparison_file}")
     
@@ -57,17 +57,15 @@ class ResultsComparator:
                 'precision': data['metrics']['precision'],
                 'recall': data['metrics']['recall'],
                 'f1': data['metrics']['f1'],
-                'training_time': 0,  # No training
+                'training_time': 0,
                 'cost': data['costs']['cost_per_1k_samples'],
                 'latency': data['performance']['avg_time_ms'],
                 'type': 'LLM API'
             }
         
-        print(f"✓ Loaded {len(self.llm_results)} LLM API results")
+        print(f"Loaded {len(self.llm_results)} LLM API results")
     
     def create_comparison_table(self) -> pd.DataFrame:
-        """Create comparison DataFrame"""
-        
         all_results = []
         
         for key, data in self.bert_results.items():
@@ -101,16 +99,14 @@ class ResultsComparator:
         return df
     
     def print_comparison_table(self, df: pd.DataFrame):
-        """Print formatted comparison table"""
-        print("\n" + "="*100)
-        print("COMPLETE COMPARISON: FINE-TUNED vs LLM APIs")
-        print("="*100 + "\n")
+     
+      
         pd.set_option('display.max_columns', None)
         pd.set_option('display.width', 100)
         pd.set_option('display.max_colwidth', 30)
         
         print(df.to_string(index=False))
-        print("\n" + "="*100)
+      
     
     def create_latex_table(self, df: pd.DataFrame) -> str:
         
@@ -156,7 +152,6 @@ class ResultsComparator:
         return markdown
     
     def generate_insights(self, df: pd.DataFrame):
-        """Generate key insights"""
         
         print("\n" + "="*100)
         print("KEY INSIGHTS FOR YOUR PAPER")
