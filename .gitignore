@@ -3,7 +3,9 @@ llm_env/
 venv/
 env/
 nner-research/
-
+models/
+results/
+data/
 # Python
 __pycache__/
 *.py[cod]
