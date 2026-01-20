@@ -6,6 +6,7 @@ nner-research/
 models/
 results/
 data/
+scripts/compare_all_results.py
 # Python
 __pycache__/
 *.py[cod]
