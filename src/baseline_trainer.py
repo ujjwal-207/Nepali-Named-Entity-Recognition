@@ -123,6 +123,8 @@ class NERTrainer:
         np.random.seed(seed)
         
         self.device = torch.device('cpu')
+        # self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        # print(f"Using device: {self.device}")
         
         
         self.label2id, self.id2label = self._get_label_mappings()

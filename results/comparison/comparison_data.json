@@ -1,0 +1,58 @@
+[
+  {
+    "Model":"Multilingual BERT (Google)",
+    "Type":"Fine-tuned",
+    "Precision":0.0,
+    "Recall":0.0,
+    "F1 Score":0,
+    "Training Time (hrs)":3.85,
+    "Cost per 1K":"$0.00",
+    "Inference (ms)":"Fast (~50ms)",
+    "Setup":"Complex"
+  },
+  {
+    "Model":"XLM-RoBERTa Base (Facebook)",
+    "Type":"Fine-tuned",
+    "Precision":0.0,
+    "Recall":0.0,
+    "F1 Score":0,
+    "Training Time (hrs)":6.18,
+    "Cost per 1K":"$0.00",
+    "Inference (ms)":"Fast (~50ms)",
+    "Setup":"Complex"
+  },
+  {
+    "Model":"DistilBERT Multilingual (HuggingFace)",
+    "Type":"Fine-tuned",
+    "Precision":0.0,
+    "Recall":0.0,
+    "F1 Score":0,
+    "Training Time (hrs)":1.92,
+    "Cost per 1K":"$0.00",
+    "Inference (ms)":"Fast (~50ms)",
+    "Setup":"Complex"
+  },
+  {
+    "Model":"GROQ-LLAMA (0-shot)",
+    "Type":"LLM API",
+    "Precision":0.0,
+    "Recall":0.0,
+    "F1 Score":0,
+    "Training Time (hrs)":0.0,
+    "Cost per 1K":"$0.00",
+    "Inference (ms)":"1764ms",
+    "Setup":"Simple"
+  },
+  {
+    "Model":"GROQ-LLAMA-SMALL (0-shot)",
+    "Type":"LLM API",
+    "Precision":0.0,
+    "Recall":0.0,
+    "F1 Score":0,
+    "Training Time (hrs)":0.0,
+    "Cost per 1K":"$0.00",
+    "Inference (ms)":"1380ms",
+    "Setup":"Simple"
+  },
+  
+]

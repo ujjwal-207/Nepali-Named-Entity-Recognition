@@ -1,0 +1,7 @@
+Model,Type,Precision,Recall,F1 Score,Training Time (hrs),Cost per 1K,Inference (ms),Setup
+Multilingual BERT (Google),Fine-tuned,0.0,0.0,0,3.85,$0.00,Fast (~50ms),Complex
+XLM-RoBERTa Base (Facebook),Fine-tuned,0.0,0.0,0,6.18,$0.00,Fast (~50ms),Complex
+DistilBERT Multilingual (HuggingFace),Fine-tuned,0.0,0.0,0,1.92,$0.00,Fast (~50ms),Complex
+GROQ-LLAMA (0-shot),LLM API,0.0,0.0,0,0.0,$0.00,1764ms,Simple
+GROQ-LLAMA-SMALL (0-shot),LLM API,0.0,0.0,0,0.0,$0.00,1380ms,Simple
+GEMINI (0-shot),LLM API,0.0,0.0,0,0.0,$0.00,0ms,Simple
