@@ -1,4 +1,3 @@
-
 import os
 import json
 import numpy as np
@@ -105,7 +104,7 @@ class NERTrainer:
         data_dir: Path = Path("data/raw"),
         output_dir: Path = Path("models/baseline"),
         max_length: int = 64,
-        batch_size: int = 4,   
+        batch_size: int = 10,   
         learning_rate: float = 3e-5,
         num_epochs: int = 5,  
         seed: int = 42
@@ -122,9 +121,7 @@ class NERTrainer:
         torch.manual_seed(seed)
         np.random.seed(seed)
         
-        self.device = torch.device('cpu')
-        # self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        # print(f"Using device: {self.device}")
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         
         self.label2id, self.id2label = self._get_label_mappings()
@@ -139,7 +136,33 @@ class NERTrainer:
         self.val_dataset = None
         self.test_dataset = None
         self.model = None
+    def _compute_bootstrap_f1(self, all_true, all_pred, n_iterations=500):
         
+        import evaluate
+        metric = evaluate.load("seqeval")
+        bootstrapped_f1s = []
+        
+        print(f"  Calculating 95% CI (Bootstrapping {n_iterations} iterations)...")
+        
+        n_samples = len(all_true)
+        indices = np.arange(n_samples)
+        
+        for _ in range(n_iterations):
+            # Sample with replacement
+            batch_indices = np.random.choice(indices, size=n_samples, replace=True)
+            sample_true = [all_true[i] for i in batch_indices]
+            sample_pred = [all_pred[i] for i in batch_indices]
+            
+            res = metric.compute(predictions=sample_pred, references=sample_true)
+            bootstrapped_f1s.append(res["overall_f1"])
+            
+        bootstrapped_f1s.sort()
+        # 95% CI is between 2.5th and 97.5th percentile
+        lower_bound = bootstrapped_f1s[int(0.025 * n_iterations)]
+        upper_bound = bootstrapped_f1s[int(0.975 * n_iterations)]
+        margin_of_error = (upper_bound - lower_bound) / 2
+        
+        return lower_bound, upper_bound, margin_of_error    
     def _get_label_mappings(self) -> Tuple[Dict, Dict]:
         labels = set(['O'])
         
@@ -303,7 +326,7 @@ class NERTrainer:
             learning_rate=self.learning_rate,
             weight_decay=0.01,
             warmup_steps=100, 
-            logging_dir=str(self.output_dir / 'logs'),
+            # logging_dir=str(self.output_dir / 'logs'),
             logging_steps=100,
             eval_strategy="epoch",
             save_strategy="epoch",
@@ -314,7 +337,7 @@ class NERTrainer:
             push_to_hub=False,
             report_to="none", 
             seed=self.seed,
-            fp16=False,
+            fp16=torch.cuda.is_available(),
             dataloader_num_workers=0,  
             gradient_accumulation_steps=2,  
         )
@@ -328,7 +351,7 @@ class NERTrainer:
             args=training_args,
             train_dataset=self.train_dataset,
             eval_dataset=self.val_dataset,
-            tokenizer=self.tokenizer,
+            processing_class=self.tokenizer,
             data_collator=data_collator,
             compute_metrics=self.compute_metrics,
             callbacks=[EarlyStoppingCallback(early_stopping_patience=2)]
@@ -350,32 +373,43 @@ class NERTrainer:
     
     def evaluate(self, trainer: Optional[Trainer] = None):
         if trainer is None:
-            self.model = AutoModelForTokenClassification.from_pretrained(
-                str(self.output_dir / "final_model")
-            )
+            self.model = AutoModelForTokenClassification.from_pretrained(str(self.output_dir / "final_model"))
             self.model.to(self.device)
-            
-            trainer = Trainer(
-                model=self.model,
-                args=TrainingArguments(output_dir=str(self.output_dir)),
-                compute_metrics=self.compute_metrics,
-            )
-        
+            trainer = Trainer(model=self.model, compute_metrics=self.compute_metrics)
+
         if self.test_dataset is not None:
+            # 1. Get raw predictions
+            output = trainer.predict(self.test_dataset)
+            predictions = np.argmax(output.predictions, axis=2)
+            labels = output.label_ids
+
+            true_labels = []
+            true_predictions = []
+
+            for prediction, label in zip(predictions, labels):
+                t_lbl, t_prd = [], []
+                for pred_id, label_id in zip(prediction, label):
+                    if label_id != -100:
+                        t_lbl.append(self.id2label[label_id])
+                        t_prd.append(self.id2label[pred_id])
+                true_labels.append(t_lbl)
+                true_predictions.append(t_prd)
+
+            # 2. Calculate Standard Metrics
+            results = self.compute_metrics((output.predictions, labels))
             
-            results = trainer.evaluate(self.test_dataset)
+            # 3. Calculate Confidence Intervals
+            low, high, margin = self._compute_bootstrap_f1(true_labels, true_predictions)
+            results['f1_ci_low'] = low
+            results['f1_ci_high'] = high
+            results['f1_margin'] = margin
+
+            print(f"  F1 Score:  {results['f1']:.4f} ± {margin:.4f} (95% CI: [{low:.4f}, {high:.4f}])")
             
-            print("Test Results")
-            print(f"  Precision: {results['eval_precision']:.4f} ({results['eval_precision']*100:.2f}%)")
-            print(f"  Recall:    {results['eval_recall']:.4f} ({results['eval_recall']*100:.2f}%)")
-            print(f"  F1 Score:  {results['eval_f1']:.4f} ({results['eval_f1']*100:.2f}%)")
-            print(f"  Accuracy:  {results['eval_accuracy']:.4f} ({results['eval_accuracy']*100:.2f}%)")
-            
-            results_file = self.output_dir / "test_results.json"
-            with open(results_file, 'w') as f:
+            # Save results
+            with open(self.output_dir / "test_results.json", 'w') as f:
                 json.dump(results, f, indent=2)
             
-            print(f"results saved to: {results_file}\n")
             return results
         else:
             print("\n test dataset not available")

@@ -1,4 +1,3 @@
-
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -14,27 +13,27 @@ from datetime import datetime
 MODELS = {
     "mbert": {
         "name": "bert-base-multilingual-cased",
-        "batch_size": 4,
+        "batch_size": 64,
         "max_length": 64,
-        "epochs": 5,
+        "epochs": 10,
         "description": "Multilingual BERT (Google)",
         "ram_usage": "4-5GB",
         "training_time": "5-6 hours"
     },
     "xlm-roberta": {
         "name": "xlm-roberta-base", 
-        "batch_size": 2,
-        "max_length": 48,
-        "epochs": 5,
+        "batch_size": 64,
+        "max_length": 64,
+        "epochs": 10,
         "description": "XLM-RoBERTa Base (Facebook)",
         "ram_usage": "6-7GB",
         "training_time": "12-15 hours"
     },
     "distilbert": {
         "name": "distilbert-base-multilingual-cased",
-        "batch_size": 6,
+        "batch_size": 64,
         "max_length": 64,
-        "epochs": 5,
+        "epochs": 10,
         "description": "DistilBERT Multilingual (HuggingFace)",
         "ram_usage": "3-4GB",
         "training_time": "4-5 hours"
@@ -166,16 +165,16 @@ def train_single_model(model_key, config):
 
 def show_status():
     progress = load_progress()
-    
-    
-    
     for model_key, config in MODELS.items():
         if model_key in progress['models_trained']:
             result = progress['results'].get(model_key, {})
-            f1 = result.get('results', {}).get('eval_f1', 0)
-            f1_str = f"{f1:.4f}" if f1 > 0 else "N/A"
+            stats = result.get('results', {})
+            f1 = stats.get('f1', 0)
+            margin = stats.get('f1_margin', 0)
+            # Display F1 with Margin
+            f1_str = f"{f1:.4f} (±{margin:.4f})"
             time_str = f"{result.get('training_time_hours', 0):.1f}h"
-            status = " Complete"
+            status = "✓ Complete"
         elif model_key in progress['models_failed']:
             f1_str = "N/A"
             time_str = "N/A"
@@ -233,8 +232,8 @@ def save_comparison_results(progress):
                 
                 eval_results = result.get('results', {})
                 if eval_results:
-                    f.write(f"\nTest Set Results:\n")
-                    f.write(f"  F1 Score:  {eval_results.get('eval_f1', 0):.4f} ({eval_results.get('eval_f1', 0)*100:.2f}%)\n")
+                    f.write(f"  F1 Score:  {eval_results.get('f1', 0):.4f} ± {eval_results.get('f1_margin', 0):.4f} ({eval_results.get('f1', 0)*100:.2f}%)\n")
+                    f.write(f"  95% CI:    [{eval_results.get('f1_ci_low', 0):.4f}, {eval_results.get('f1_ci_high', 0):.4f}] ({eval_results.get('f1_ci_low', 0)*100:.2f}% - {eval_results.get('f1_ci_high', 0)*100:.2f}%)\n")
                     f.write(f"  Precision: {eval_results.get('eval_precision', 0):.4f} ({eval_results.get('eval_precision', 0)*100:.2f}%)\n")
                     f.write(f"  Recall:    {eval_results.get('eval_recall', 0):.4f} ({eval_results.get('eval_recall', 0)*100:.2f}%)\n")
                     f.write(f"  Accuracy:  {eval_results.get('eval_accuracy', 0):.4f} ({eval_results.get('eval_accuracy', 0)*100:.2f}%)\n")
