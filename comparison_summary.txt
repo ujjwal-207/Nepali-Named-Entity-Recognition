@@ -1,0 +1,34 @@
+Generated: 2026-05-21 07:10:34
+
+MBERT: Multilingual BERT (Google)
+Status: Success
+Training Time: 0.22 hours
+Training Period: 2026-05-21 06:13:24 to 2026-05-21 06:26:37
+  F1 Score:  0.8729 ± 0.0127 (87.29%)
+  95% CI:    [0.8593, 0.8846] (85.93% - 88.46%)
+  Precision: 0.0000 (0.00%)
+  Recall:    0.0000 (0.00%)
+  Accuracy:  0.0000 (0.00%)
+
+
+XLM-ROBERTA: XLM-RoBERTa Base (Facebook)
+Status: Success
+Training Time: 0.28 hours
+Training Period: 2026-05-21 06:35:07 to 2026-05-21 06:51:38
+  F1 Score:  0.9051 ± 0.0104 (90.51%)
+  95% CI:    [0.8943, 0.9151] (89.43% - 91.51%)
+  Precision: 0.0000 (0.00%)
+  Recall:    0.0000 (0.00%)
+  Accuracy:  0.0000 (0.00%)
+
+
+DISTILBERT: DistilBERT Multilingual (HuggingFace)
+Status: Success
+Training Time: 0.18 hours
+Training Period: 2026-05-21 06:59:52 to 2026-05-21 07:10:34
+  F1 Score:  0.8295 ± 0.0147 (82.95%)
+  95% CI:    [0.8142, 0.8435] (81.42% - 84.35%)
+  Precision: 0.0000 (0.00%)
+  Recall:    0.0000 (0.00%)
+  Accuracy:  0.0000 (0.00%)
+
