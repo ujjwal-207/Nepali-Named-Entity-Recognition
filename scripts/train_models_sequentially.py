@@ -8,6 +8,7 @@ import time
 import gc
 import torch
 import argparse
+from src.reproducibility import reproducibility_block
 from datetime import datetime
 
 MODELS = {
@@ -249,6 +250,7 @@ def save_comparison_results(progress):
 
 
 def main():
+    reproducibility_block(seed=42, output_dir="models/baseline", experiment_name="sequential-training")
     parser = argparse.ArgumentParser(description='Train NER models sequentially')
     parser.add_argument('--model', type=str, help='Train specific model (mbert/xlm-roberta/distilbert)')
     parser.add_argument('--status', action='store_true', help='Show training status')

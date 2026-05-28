@@ -9,6 +9,7 @@ from collections import defaultdict
 import evaluate;
 from typing import Optional
 import random
+from src.reproducibility import set_seed
 
 class NERAPIEvaluator:
     
@@ -29,6 +30,7 @@ class NERAPIEvaluator:
         self.num_shots = num_shots
         self.max_samples = max_samples
         self.seed = seed
+        set_seed(seed)
         
         self.setup_api_client()
         

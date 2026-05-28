@@ -21,6 +21,7 @@ from peft import (
 from datasets import Dataset
 import json
 import argparse
+from src.reproducibility import reproducibility_block
 from datetime import datetime
 import gc
 import warnings
@@ -383,6 +384,7 @@ class QLoRANERTrainer:
 
 
 def main():
+    reproducibility_block(seed=42, output_dir="models/qlora", experiment_name="qlora-finetuning")
     parser = argparse.ArgumentParser(description='Train generative models for NER using QLoRA')
     parser.add_argument('--model', type=str, default='phi',
                        choices=list(MODELS.keys()),

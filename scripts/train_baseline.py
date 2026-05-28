@@ -119,8 +119,9 @@ class NERTrainer:
         self.num_epochs = num_epochs
         self.seed = seed
         
-        torch.manual_seed(seed)
-        np.random.seed(seed)
+        # IEEE Reproducibility: Set ALL random seeds (not just torch/numpy)
+        from src.reproducibility import set_seed
+        set_seed(seed)
         
         self.device = torch.device('cpu')
         
