@@ -119,9 +119,8 @@ class NERTrainer:
         self.num_epochs = num_epochs
         self.seed = seed
         
-        # IEEE Reproducibility: Set ALL random seeds (not just torch/numpy)
-        from src.reproducibility import set_seed
-        set_seed(seed)
+        torch.manual_seed(seed)
+        np.random.seed(seed)
         
         self.device = torch.device('cpu')
         
@@ -379,6 +378,7 @@ class NERTrainer:
 
 
 def main():
+    reproducibility_block(seed=42, output_dir="models/baseline", experiment_name="baseline-encoder")
     
     trainer = NERTrainer(
         model_name="bert-base-multilingual-cased", 
