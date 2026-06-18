@@ -118,9 +118,8 @@ class NERTrainer:
         self.num_epochs = num_epochs
         self.seed = seed
         
-        # IEEE Reproducibility: Set ALL random seeds (not just torch/numpy)
-        from src.reproducibility import set_seed
-        set_seed(seed)
+        torch.manual_seed(seed)
+        np.random.seed(seed)
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
@@ -302,11 +301,26 @@ class NERTrainer:
         
         results = metric.compute(predictions=true_predictions, references=true_labels)
         
+        # Build per-entity metrics
+        per_entity = {}
+        if "PER" in results:
+            # Dataset uses P, L, O, D, E codes
+            # Map display names to seqeval keys
+            for short in ["Person", "Location", "Organization", "Date", "Event"]:
+                if short in results:
+                    per_entity[short] = {
+                        "precision": results[short]["precision"],
+                        "recall": results[short]["recall"],
+                        "f1": results[short]["f1"],
+                        "support": results[short]["number"]
+                    }
+        
         return {
             "precision": results["overall_precision"],
             "recall": results["overall_recall"],
             "f1": results["overall_f1"],
             "accuracy": results["overall_accuracy"],
+            "per_entity": per_entity if per_entity else None
         }
     
     def train(self):
@@ -406,6 +420,16 @@ class NERTrainer:
             results['f1_margin'] = margin
 
             print(f"  F1 Score:  {results['f1']:.4f} ± {margin:.4f} (95% CI: [{low:.4f}, {high:.4f}])")
+            
+            # Print per-entity breakdown
+            if results.get('per_entity'):
+                print(f"{'='*60}")
+                print(f"  Per-Entity Breakdown:")
+                print(f"  {'Entity':<8} {'Precision':<12} {'Recall':<12} {'F1':<12} {'Support':<8}")
+                print(f"  {'-'*50}")
+                for entity, metrics in results['per_entity'].items():
+                    print(f"  {entity:<8} {metrics['precision']:.4f}       {metrics['recall']:.4f}       {metrics['f1']:.4f}       {metrics['support']:<8}")
+                print(f"{'='*60}")
             
             # Save results
             with open(self.output_dir / "test_results.json", 'w') as f:
