@@ -231,7 +231,7 @@ class NERAPIEvaluator:
             pass
 
     
-        m = re.search(r"\[[\s\S]*\]", s)
+        m = re.search(r"\[[\s\S]*?\]", s)
         if m:
             try:
                 obj = json.loads(m.group(0))

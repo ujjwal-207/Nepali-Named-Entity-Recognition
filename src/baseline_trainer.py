@@ -303,10 +303,8 @@ class NERTrainer:
         
         # Build per-entity metrics
         per_entity = {}
-        if "PER" in results:
-            # Dataset uses P, L, O, D, E codes
-            # Map display names to seqeval keys
-            for short in ["Person", "Location", "Organization", "Date", "Event"]:
+        # Collect per-entity metrics from seqeval
+        for short in ["Person", "Location", "Organization", "Date", "Event"]:
                 if short in results:
                     per_entity[short] = {
                         "precision": results[short]["precision"],
