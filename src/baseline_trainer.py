@@ -307,17 +307,17 @@ class NERTrainer:
         for short in ["Person", "Location", "Organization", "Date", "Event"]:
                 if short in results:
                     per_entity[short] = {
-                        "precision": results[short]["precision"],
-                        "recall": results[short]["recall"],
-                        "f1": results[short]["f1"],
-                        "support": results[short]["number"]
+                        "precision": float(results[short]["precision"]),
+                        "recall": float(results[short]["recall"]),
+                        "f1": float(results[short]["f1"]),
+                        "support": int(results[short]["number"])
                     }
         
         return {
-            "precision": results["overall_precision"],
-            "recall": results["overall_recall"],
-            "f1": results["overall_f1"],
-            "accuracy": results["overall_accuracy"],
+            "precision": float(results["overall_precision"]),
+            "recall": float(results["overall_recall"]),
+            "f1": float(results["overall_f1"]),
+            "accuracy": float(results["overall_accuracy"]),
             "per_entity": per_entity if per_entity else None
         }
     
@@ -413,9 +413,9 @@ class NERTrainer:
             
             # 3. Calculate Confidence Intervals
             low, high, margin = self._compute_bootstrap_f1(true_labels, true_predictions)
-            results['f1_ci_low'] = low
-            results['f1_ci_high'] = high
-            results['f1_margin'] = margin
+            results['f1_ci_low'] = float(low)
+            results['f1_ci_high'] = float(high)
+            results['f1_margin'] = float(margin)
 
             print(f"  F1 Score:  {results['f1']:.4f} ± {margin:.4f} (95% CI: [{low:.4f}, {high:.4f}])")
             
