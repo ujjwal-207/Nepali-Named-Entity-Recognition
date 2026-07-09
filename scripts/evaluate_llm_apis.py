@@ -447,9 +447,31 @@ class NERAPIEvaluator:
         print(f"API failures: {api_fail}/{len(test_sents)} ({api_fail/len(test_sents)*100:.1f}%)")
         print(f"\nRESULTS FOR {self.model_name} (seqeval entity-level)")
         print(f"F1: {f1*100:.2f}% | Precision: {precision*100:.2f}% | Recall: {wrecall*100:.2f}%")
+        
+        # Per-entity breakdown
+        print(f"\n  Per-Entity Breakdown:")
+        for entity in ["Person", "Location", "Organization", "Date", "Event"]:
+            if entity in results:
+                e = results[entity]
+                print(f"    {entity:<15} P:{float(e['precision']):.3f}  R:{float(e['recall']):.3f}  F1:{float(e['f1']):.3f}  N:{int(e['number'])}")
         print(f"Parse failures: {parse_fail}/{len(test_sents)} ({(parse_fail/len(test_sents))*100:.1f}%)")
         print(f"Avg latency: {(self.total_time/len(test_sents)):.2f}s/sample")
         print(f"Total cost: ${self.total_cost:.4f}")
+        # Save per-entity to audit log
+        per_entity = {}
+        for entity in ["Person", "Location", "Organization", "Date", "Event"]:
+            if entity in results:
+                per_entity[entity] = {
+                    "precision": float(results[entity]["precision"]),
+                    "recall": float(results[entity]["recall"]),
+                    "f1": float(results[entity]["f1"]),
+                    "support": int(results[entity]["number"])
+                }
+        
+        # Write summary at end of audit log
+        summary = {"overall": {"precision": float(precision), "recall": float(wrecall), "f1": float(f1)}, "per_entity": per_entity}
+        logf.write(json.dumps({"__summary__": summary}, ensure_ascii=False) + "\n")
+        
         print(f"Saved audit log: {log_path}")
 
     def print_summary(self, precision, recall, f1, num_samples):
