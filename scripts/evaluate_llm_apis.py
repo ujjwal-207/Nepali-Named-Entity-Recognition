@@ -9,7 +9,7 @@ from collections import defaultdict
 import evaluate;
 from typing import Optional
 import random
-from src.reproducibility import set_seed
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).parent.parent)); from src.reproducibility import set_seed
 
 class NERAPIEvaluator:
     
@@ -439,7 +439,7 @@ class NERAPIEvaluator:
 
                 if i % 10 == 0:
                     print(f"Processed {i}/{len(test_sents)}")
-
+        
         results = metric.compute(predictions=y_pred, references=y_true)
         precision = results.get("overall_precision", 0.0)
         wrecall = results.get("overall_recall", 0.0)
@@ -468,9 +468,10 @@ class NERAPIEvaluator:
                     "support": int(results[entity]["number"])
                 }
         
-        # Write summary at end of audit log
-        summary = {"overall": {"precision": float(precision), "recall": float(wrecall), "f1": float(f1)}, "per_entity": per_entity}
-        logf.write(json.dumps({"__summary__": summary}, ensure_ascii=False) + "\n")
+        # Append summary to audit log
+        with open(log_path, "a", encoding="utf-8") as logf:
+            summary = {"overall": {"precision": float(precision), "recall": float(wrecall), "f1": float(f1)}, "per_entity": per_entity}
+            logf.write(json.dumps({"__summary__": summary}, ensure_ascii=False) + "\n")
         
         print(f"Saved audit log: {log_path}")
 
