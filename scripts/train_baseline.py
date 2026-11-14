@@ -378,6 +378,7 @@ class NERTrainer:
 
 
 def main():
+    reproducibility_block(seed=42, output_dir="models/baseline", experiment_name="baseline-encoder")
     
     trainer = NERTrainer(
         model_name="bert-base-multilingual-cased", 

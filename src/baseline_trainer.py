@@ -301,11 +301,24 @@ class NERTrainer:
         
         results = metric.compute(predictions=true_predictions, references=true_labels)
         
+        # Build per-entity metrics
+        per_entity = {}
+        # Collect per-entity metrics from seqeval
+        for short in ["Person", "Location", "Organization", "Date", "Event"]:
+                if short in results:
+                    per_entity[short] = {
+                        "precision": float(results[short]["precision"]),
+                        "recall": float(results[short]["recall"]),
+                        "f1": float(results[short]["f1"]),
+                        "support": int(results[short]["number"])
+                    }
+        
         return {
-            "precision": results["overall_precision"],
-            "recall": results["overall_recall"],
-            "f1": results["overall_f1"],
-            "accuracy": results["overall_accuracy"],
+            "precision": float(results["overall_precision"]),
+            "recall": float(results["overall_recall"]),
+            "f1": float(results["overall_f1"]),
+            "accuracy": float(results["overall_accuracy"]),
+            "per_entity": per_entity if per_entity else None
         }
     
     def train(self):
@@ -400,11 +413,21 @@ class NERTrainer:
             
             # 3. Calculate Confidence Intervals
             low, high, margin = self._compute_bootstrap_f1(true_labels, true_predictions)
-            results['f1_ci_low'] = low
-            results['f1_ci_high'] = high
-            results['f1_margin'] = margin
+            results['f1_ci_low'] = float(low)
+            results['f1_ci_high'] = float(high)
+            results['f1_margin'] = float(margin)
 
             print(f"  F1 Score:  {results['f1']:.4f} ± {margin:.4f} (95% CI: [{low:.4f}, {high:.4f}])")
+            
+            # Print per-entity breakdown
+            if results.get('per_entity'):
+                print(f"{'='*60}")
+                print(f"  Per-Entity Breakdown:")
+                print(f"  {'Entity':<8} {'Precision':<12} {'Recall':<12} {'F1':<12} {'Support':<8}")
+                print(f"  {'-'*50}")
+                for entity, metrics in results['per_entity'].items():
+                    print(f"  {entity:<8} {metrics['precision']:.4f}       {metrics['recall']:.4f}       {metrics['f1']:.4f}       {metrics['support']:<8}")
+                print(f"{'='*60}")
             
             # Save results
             with open(self.output_dir / "test_results.json", 'w') as f:

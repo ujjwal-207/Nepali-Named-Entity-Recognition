@@ -1,6 +1,7 @@
 
 import sys
 from pathlib import Path
+from src.reproducibility import reproducibility_block
 sys.path.append(str(Path(__file__).parent.parent))
 
 from src.baseline_trainer import NERTrainer
@@ -97,6 +98,7 @@ def update_comparison_results(model_key: str, eval_results: dict):
 
 
 def main():
+    reproducibility_block(seed=42, output_dir="results", experiment_name="evaluate-trained-models")
     
     
     base_dir = Path("models/baseline")

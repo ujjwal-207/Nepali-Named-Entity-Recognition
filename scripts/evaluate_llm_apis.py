@@ -9,6 +9,7 @@ from collections import defaultdict
 import evaluate;
 from typing import Optional
 import random
+import sys; from pathlib import Path; sys.path.insert(0, str(Path(__file__).parent.parent)); from src.reproducibility import set_seed
 
 class NERAPIEvaluator:
     
@@ -29,6 +30,7 @@ class NERAPIEvaluator:
         self.num_shots = num_shots
         self.max_samples = max_samples
         self.seed = seed
+        set_seed(seed)
         
         self.setup_api_client()
         
@@ -229,7 +231,7 @@ class NERAPIEvaluator:
             pass
 
     
-        m = re.search(r"\[[\s\S]*\]", s)
+        m = re.search(r"\[[\s\S]*?\]", s)
         if m:
             try:
                 obj = json.loads(m.group(0))
@@ -437,7 +439,7 @@ class NERAPIEvaluator:
 
                 if i % 10 == 0:
                     print(f"Processed {i}/{len(test_sents)}")
-
+        
         results = metric.compute(predictions=y_pred, references=y_true)
         precision = results.get("overall_precision", 0.0)
         wrecall = results.get("overall_recall", 0.0)
@@ -445,9 +447,32 @@ class NERAPIEvaluator:
         print(f"API failures: {api_fail}/{len(test_sents)} ({api_fail/len(test_sents)*100:.1f}%)")
         print(f"\nRESULTS FOR {self.model_name} (seqeval entity-level)")
         print(f"F1: {f1*100:.2f}% | Precision: {precision*100:.2f}% | Recall: {wrecall*100:.2f}%")
+        
+        # Per-entity breakdown
+        print(f"\n  Per-Entity Breakdown:")
+        for entity in ["Person", "Location", "Organization", "Date", "Event"]:
+            if entity in results:
+                e = results[entity]
+                print(f"    {entity:<15} P:{float(e['precision']):.3f}  R:{float(e['recall']):.3f}  F1:{float(e['f1']):.3f}  N:{int(e['number'])}")
         print(f"Parse failures: {parse_fail}/{len(test_sents)} ({(parse_fail/len(test_sents))*100:.1f}%)")
         print(f"Avg latency: {(self.total_time/len(test_sents)):.2f}s/sample")
         print(f"Total cost: ${self.total_cost:.4f}")
+        # Save per-entity to audit log
+        per_entity = {}
+        for entity in ["Person", "Location", "Organization", "Date", "Event"]:
+            if entity in results:
+                per_entity[entity] = {
+                    "precision": float(results[entity]["precision"]),
+                    "recall": float(results[entity]["recall"]),
+                    "f1": float(results[entity]["f1"]),
+                    "support": int(results[entity]["number"])
+                }
+        
+        # Append summary to audit log
+        with open(log_path, "a", encoding="utf-8") as logf:
+            summary = {"overall": {"precision": float(precision), "recall": float(wrecall), "f1": float(f1)}, "per_entity": per_entity}
+            logf.write(json.dumps({"__summary__": summary}, ensure_ascii=False) + "\n")
+        
         print(f"Saved audit log: {log_path}")
 
     def print_summary(self, precision, recall, f1, num_samples):
