@@ -1,146 +1,150 @@
+#!/usr/bin/env python3
+"""
+Evaluation script for trained discriminative transformer NER models.
 
-import sys
-from pathlib import Path
-from src.reproducibility import reproducibility_block
-sys.path.append(str(Path(__file__).parent.parent))
+Loads saved checkpoints, generates span-level seqeval metrics on the test split,
+and calculates 95% bootstrap confidence intervals.
+"""
 
-from src.baseline_trainer import NERTrainer
+import argparse
 import json
+import logging
+from pathlib import Path
+import sys
+from typing import Any, Dict, Optional
+
+from transformers import AutoModelForTokenClassification, Trainer, TrainingArguments
+
+sys.path.append(str(Path(__file__).parent.parent))
+from src.baseline_trainer import NERTrainer
+from src.reproducibility import reproducibility_block
+
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%m/%d/%Y %H:%M:%S",
+    level=logging.INFO,
+)
+logger = logging.getLogger(__name__)
+
+MODEL_REGISTRY: Dict[str, str] = {
+    "mbert": "bert-base-multilingual-cased",
+    "distilbert": "distilbert-base-multilingual-cased",
+    "xlm-roberta": "xlm-roberta-base",
+}
 
 
-def evaluate_model(model_dir: Path, model_key: str):
-    
-    
+def evaluate_model(
+    model_dir: Path, model_key: str, batch_size: int = 64
+) -> Optional[Dict[str, Any]]:
+    """Evaluate a saved model checkpoint on the test split.
+
+    Args:
+        model_dir: Path to directory containing checkpoint.
+        model_key: Identifier key in MODEL_REGISTRY.
+        batch_size: Evaluation batch size.
+
+    Returns:
+        Dictionary of evaluation results or None if failed.
+    """
     final_model_dir = model_dir / "final_model"
     if not final_model_dir.exists():
-        print(f" Model not found at {final_model_dir}")
-        print(f"Skipping {model_key}...")
+        logger.warning("Checkpoint not found at %s. Skipping.", final_model_dir)
         return None
-    
-    model_names = {
-        "mbert": "bert-base-multilingual-cased",
-        "distilbert": "distilbert-base-multilingual-cased",
-        "xlm-roberta": "xlm-roberta-base"
-    }
-    
-    model_name = model_names.get(model_key)
+
+    model_name = MODEL_REGISTRY.get(model_key)
     if not model_name:
-        print(f" Unknown model key: {model_key}")
+        logger.error("Unknown model identifier: %s", model_key)
         return None
-    
+
     try:
-        trainer = NERTrainer(
+        trainer_helper = NERTrainer(
             model_name=model_name,
             data_dir=Path("data/raw"),
             output_dir=model_dir,
             max_length=64,
-            batch_size=64,
+            batch_size=batch_size,
             seed=42,
         )
-        
-        trainer.load_data()
-        
-        if trainer.test_dataset is None:
-            print(" No test dataset found!")
+        trainer_helper.load_data()
+
+        if trainer_helper.test_dataset is None:
+            logger.error("Test dataset split not found.")
             return None
-        
-        from transformers import AutoModelForTokenClassification, Trainer, TrainingArguments
-        
+
         model = AutoModelForTokenClassification.from_pretrained(str(final_model_dir))
-        model.to(trainer.device)
-        
+        model.to(trainer_helper.device)
+
         eval_trainer = Trainer(
             model=model,
             args=TrainingArguments(
                 output_dir=str(model_dir),
-                per_device_eval_batch_size=64,
+                per_device_eval_batch_size=batch_size,
                 report_to="none",
             ),
-            compute_metrics=trainer.compute_metrics,
+            compute_metrics=trainer_helper.compute_metrics,
         )
-        
-        results = eval_trainer.evaluate(trainer.test_dataset)
-        
-        
-        results_file = model_dir / "test_results.json"
-        with open(results_file, 'w') as f:
-            json.dump(results, f, indent=2)
-        
-        
+
+        results = trainer_helper.evaluate(eval_trainer)
         return results
-        
+
     except Exception as e:
-        print(f" Error evaluating {model_key}: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.exception("Failed evaluation for %s: %s", model_key, e)
         return None
 
 
-def update_comparison_results(model_key: str, eval_results: dict):
-    
-    comparison_file = Path("models/baseline/comparison_results.json")
-    
-    if not comparison_file.exists():
-        print(f" Comparison file not found: {comparison_file}")
-        return
-    
-    with open(comparison_file, 'r') as f:
-        data = json.load(f)
-    
-    if model_key in data:
-        data[model_key]['results'] = eval_results
-        data[model_key]['status'] = 'success'
-        
-        with open(comparison_file, 'w') as f:
-            json.dump(data, f, indent=2)
-        
-    else:
-        print(f"  {model_key} not found in comparison results")
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Evaluate saved transformer NER models.")
+    parser.add_argument(
+        "--models_dir",
+        type=str,
+        default="models/baseline",
+        help="Root directory containing saved model subdirectories.",
+    )
+    parser.add_argument(
+        "--batch_size",
+        type=int,
+        default=64,
+        help="Evaluation batch size per device (default: 64).",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Deterministic random seed.",
+    )
+    args = parser.parse_args()
 
+    reproducibility_block(
+        seed=args.seed,
+        output_dir="results/evaluation",
+        experiment_name="evaluate-trained-models",
+    )
 
-def main():
-    reproducibility_block(seed=42, output_dir="results", experiment_name="evaluate-trained-models")
-    
-    
-    base_dir = Path("models/baseline")
-    
-    models = {
-        "mbert": base_dir / "mbert",
-        "distilbert": base_dir / "distilbert",
-        "xlm-roberta": base_dir / "xlm-roberta"
-    }
-    
-    existing_models = {}
-    for key, path in models.items():
-        if (path / "final_model").exists():
-            existing_models[key] = path
-            print(f" Found: {key}")
+    base_dir = Path(args.models_dir)
+    results_summary: Dict[str, Any] = {}
+
+    for key in MODEL_REGISTRY:
+        model_dir = base_dir / key
+        if (model_dir / "final_model").exists():
+            logger.info("Evaluating checkpoint: %s (batch_size=%d)", key, args.batch_size)
+            res = evaluate_model(model_dir, key, batch_size=args.batch_size)
+            if res:
+                results_summary[key] = res
         else:
-            print(f"  Not found: {key}")
-    
-    if not existing_models:
-        print("\n No trained models found!")
-        return
-    
-    
-    results_summary = {}
-    
-    for model_key, model_dir in existing_models.items():
-        results = evaluate_model(model_dir, model_key)
-        
-        if results:
-            results_summary[model_key] = results
-            update_comparison_results(model_key, results)
-    
-    
-    for model_key, results in results_summary.items():
-        f1 = results.get('eval_f1', 0)
-        precision = results.get('eval_precision', 0)
-        recall = results.get('eval_recall', 0)
-        
-        print(f"{model_key.upper():<20} {f1:.4f}      {precision:.4f}      {recall:.4f}")
-    
-   
+            logger.info("No checkpoint found for %s", key)
+
+    if results_summary:
+        print("\n" + "=" * 65)
+        print(f"{'Model':<15} {'F1':<10} {'Precision':<12} {'Recall':<10} {'95% CI':<15}")
+        print("-" * 65)
+        for key, res in results_summary.items():
+            f1 = res.get("f1", 0.0)
+            p = res.get("precision", 0.0)
+            r = res.get("recall", 0.0)
+            low = res.get("f1_ci_low", 0.0)
+            high = res.get("f1_ci_high", 0.0)
+            print(f"{key:<15} {f1:<10.4f} {p:<12.4f} {r:<10.4f} [{low:.4f}, {high:.4f}]")
+        print("=" * 65 + "\n")
 
 
 if __name__ == "__main__":
