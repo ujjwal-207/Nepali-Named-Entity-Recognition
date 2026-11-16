@@ -1,29 +1,46 @@
-# Virtual Environment
-llm_env/
-venv/
-env/
-nner-research/
-models/
-data/
-scripts/compare_all_results.py
-# Python
+# Python bytecode & cache
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 
-# API Keys and Environment Variables
+# Virtual Environment
+venv/
+env/
+llm_env/
+nner-research/
+
+# Model checkpoints & heavy weights
+models/
+*.pt
+*.bin
+*.safetensors
+*.onnx
+
+# Evaluation logs & pilot runs
+results/llm_api/pilot_experiments/
+*.log
+
+# Sensitive credentials
 .env
+*.env
 *.key
 config.ini
 
-# IDE
+# Working manuscript drafts & LaTeX build files
+overleaf.txt
+*.aux
+*.bbl
+*.blg
+*.out
+*.synctex.gz
+push_clean_release.sh
+
+# IDE & OS artifacts
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# Data files (if large)
-# *.csv
-# *.json
+.DS_Store
+Thumbs.db

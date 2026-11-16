@@ -1,26 +1,29 @@
 """
-Reproducibility utilities for Research-nner.
-Ensures deterministic behavior across all training and evaluation scripts.
-Follows IEEE Reproducibility Guidelines (2024) and Pineau et al. (2021) ML Reproducibility Checklist.
+Reproducibility utilities for Nepali Named Entity Recognition.
+
+Ensures deterministic execution across all training and evaluation runs,
+in accordance with IEEE and ML reproducibility standards.
 """
 
+from datetime import datetime
+import json
+import os
+from pathlib import Path
+import platform
 import random
+import subprocess
+import sys
+from typing import Any, Dict, Optional
+
 import numpy as np
 import torch
-import os
-import sys
-import platform
-import json
-import subprocess
-from datetime import datetime
-from pathlib import Path
-from typing import Optional
 
 
 def set_seed(seed: int = 42) -> None:
-    """
-    Set all random seeds for full reproducibility.
-    Includes Python, NumPy, PyTorch (CPU + CUDA), and CUDA backend settings.
+    """Set random seeds across Python, NumPy, PyTorch CPU, and CUDA backends.
+
+    Args:
+        seed: Integer random seed value.
     """
     random.seed(seed)
     np.random.seed(seed)
@@ -34,12 +37,14 @@ def set_seed(seed: int = 42) -> None:
     os.environ["PYTHONHASHSEED"] = str(seed)
     os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
 
-    print(f"✅ Seed set to {seed} | cudnn.deterministic=True | cudnn.benchmark=False")
 
+def get_environment_info() -> Dict[str, Any]:
+    """Collect system, hardware, and library environment metadata.
 
-def get_environment_info() -> dict:
-    """Collect comprehensive environment information for reproducibility."""
-    info = {
+    Returns:
+        Dictionary containing hardware specifications, OS, and package versions.
+    """
+    info: Dict[str, Any] = {
         "timestamp": datetime.now().isoformat(),
         "platform": platform.platform(),
         "machine": platform.machine(),
@@ -51,7 +56,9 @@ def get_environment_info() -> dict:
         info["cuda_available"] = torch.cuda.is_available()
         info["cuda_version"] = torch.version.cuda if torch.cuda.is_available() else "None"
         if torch.cuda.is_available():
-            info["gpu_names"] = [torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())]
+            info["gpu_names"] = [
+                torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())
+            ]
     except Exception:
         pass
 
@@ -69,30 +76,51 @@ def get_environment_info() -> dict:
 
     try:
         import seqeval
-        info["seqeval_version"] = seqeval.__version__ if hasattr(seqeval, '__version__') else "unknown"
+        info["seqeval_version"] = getattr(seqeval, "__version__", "unknown")
     except Exception:
         pass
 
     return info
 
 
-def get_pip_freeze() -> dict:
-    """Get all installed package versions."""
+def get_pip_freeze() -> Dict[str, str]:
+    """Capture pinned package versions via pip freeze.
+
+    Returns:
+        Mapping of installed package names to their exact versions.
+    """
     try:
-        result = subprocess.run([sys.executable, "-m", "pip", "freeze"],
-                                capture_output=True, text=True, check=True)
-        packages = {}
+        result = subprocess.run(
+            [sys.executable, "-m", "pip", "freeze"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        packages: Dict[str, str] = {}
         for line in result.stdout.strip().split("\n"):
             if "==" in line:
                 name, version = line.split("==", 1)
                 packages[name] = version
         return packages
     except Exception:
-        return {"error": "Could not run pip freeze"}
+        return {"error": "Could not execute pip freeze"}
 
 
-def log_environment(output_dir: str, seed: int = 42, extra_info: Optional[dict] = None) -> str:
-    """Log full environment information to a JSON file."""
+def log_environment(
+    output_dir: str,
+    seed: int = 42,
+    extra_info: Optional[Dict[str, Any]] = None,
+) -> str:
+    """Log full reproducibility metadata to environment.json.
+
+    Args:
+        output_dir: Directory where the log file is saved.
+        seed: Random seed applied to the run.
+        extra_info: Additional metadata or experiment arguments.
+
+    Returns:
+        String path to the saved environment file.
+    """
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
@@ -114,20 +142,28 @@ def log_environment(output_dir: str, seed: int = 42, extra_info: Optional[dict] 
     with open(log_file, "w", encoding="utf-8") as f:
         json.dump(env_log, f, indent=2, default=str)
 
-    print(f"📝 Environment logged to: {log_file}")
     return str(log_file)
 
 
-def reproducibility_block(seed: int = 42, output_dir: Optional[str] = None,
-                          experiment_name: str = "research-nner") -> None:
-    """Full reproducibility setup. Call at start of every script."""
+def reproducibility_block(
+    seed: int = 42,
+    output_dir: Optional[str] = None,
+    experiment_name: str = "research-nner",
+) -> None:
+    """Initialize reproducibility settings at the start of an experiment.
+
+    Args:
+        seed: Random seed value.
+        output_dir: Optional directory to log the execution environment.
+        experiment_name: Identifier for the current experiment run.
+    """
     set_seed(seed)
 
     if output_dir:
         extra = {"experiment_name": experiment_name}
         log_environment(output_dir, seed=seed, extra_info=extra)
 
-    print(f"{'='*60}")
-    print(f"  Experiment: {experiment_name} | Seed: {seed}")
-    print(f"  Timestamp: {datetime.now().isoformat()}")
-    print(f"{'='*60}")
+    print("=" * 60)
+    print(f"Experiment: {experiment_name} | Seed: {seed}")
+    print(f"Timestamp:  {datetime.now().isoformat()}")
+    print("=" * 60)

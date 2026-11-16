@@ -1,0 +1,47 @@
+[
+  {
+    "Tokenizer": "XLM-RoBERTa (SentencePiece)",
+    "Paradigm": "Encoder",
+    "Vocab Size": "250,002",
+    "Total Subwords": 55952,
+    "Fertility (Tokens/Word)": 1.398,
+    "Chars/Token": 3.63,
+    "Expansion vs XLM-R": "1.00x"
+  },
+  {
+    "Tokenizer": "mBERT / DistilBERT (WordPiece)",
+    "Paradigm": "Encoder",
+    "Vocab Size": "119,547",
+    "Total Subwords": 88603,
+    "Fertility (Tokens/Word)": 2.214,
+    "Chars/Token": 2.29,
+    "Expansion vs XLM-R": "1.58x"
+  },
+  {
+    "Tokenizer": "GPT-4o-mini (o200k_base BPE)",
+    "Paradigm": "Generative LLM",
+    "Vocab Size": "200,019",
+    "Total Subwords": 68481,
+    "Fertility (Tokens/Word)": 1.711,
+    "Chars/Token": 2.97,
+    "Expansion vs XLM-R": "1.22x"
+  },
+  {
+    "Tokenizer": "Qwen 2.5 (BPE)",
+    "Paradigm": "Generative LLM",
+    "Vocab Size": "151,665",
+    "Total Subwords": 190433,
+    "Fertility (Tokens/Word)": 4.759,
+    "Chars/Token": 1.07,
+    "Expansion vs XLM-R": "3.40x"
+  },
+  {
+    "Tokenizer": "Llama 3 / 3.1 / 3.3 (BPE)",
+    "Paradigm": "Generative LLM",
+    "Vocab Size": "128,256",
+    "Total Subwords": 113230,
+    "Fertility (Tokens/Word)": 2.829,
+    "Chars/Token": 1.8,
+    "Expansion vs XLM-R": "2.02x"
+  }
+]
