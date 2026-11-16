@@ -55,6 +55,10 @@ The project is designed for the **EverestNER** Nepali NER dataset. Expected file
 
 Entity types are auto-detected from the training file (e.g., `PER`, `LOC`, `ORG`, `DATE`, `EVENT`).
 
+<p align="center">
+  <img src="assets/barchart.png" alt="Overall F1-Score Comparison on EverestNER" width="85%" />
+</p>
+
 ---
 
 ## Baseline Encoder Models
@@ -96,6 +100,10 @@ Generative decoder-only models fine-tuned with 4-bit QLoRA for instruction-follo
 - Memory limit: 6GB GPU / 6GB CPU
 - Paged AdamW 8-bit optimizer
 
+<p align="center">
+  <img src="assets/heatmap2.png" alt="Entity-Specific F1 Heatmap" width="85%" />
+</p>
+
 ---
 
 ## LLM API Evaluation
@@ -127,6 +135,7 @@ Evaluates frontier LLMs via API on the EverestNER test set. Compares using **seq
 pip install -r requirements.txt
 pip install peft bitsandbytes anthropic groq mistralai  # Additional dependencies
 ```
+├── assets/                           # Publication figures (barchart, heatmap, scatter)
 
 Place your EverestNER dataset files in `data/raw/`.
 
