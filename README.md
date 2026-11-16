@@ -75,7 +75,8 @@ Three multilingual transformer models fine-tuned as token classifiers:
 - Auto-detected label mappings from BIO tag set
 - Word-to-token alignment (`-100` for subword tokens)
 - HuggingFace `Trainer` with `DataCollatorForTokenClassification`
-- `EarlyStoppingCallback` (patience=2)
+- Hyperparameters: Learning rate `2e-5`, batch size `64`, `10` epochs, `500` linear warmup steps
+- `EarlyStoppingCallback` (patience=3)
 - Seqeval-based evaluation with **bootstrapped 95% confidence intervals** (500 iterations)
 - FP16 training when CUDA is available
 - Gradient accumulation (×2)
@@ -422,7 +423,8 @@ All evaluation outputs are in `results/`:
 ### Reproducibility Notes
 
 - All random seeds are set to `42` (`--seed 42`)
-- Encoder training uses early stopping (patience=2) on validation F1
+- Encoder training uses early stopping (patience=3) on validation F1
+- Hyperparameters: AdamW optimizer, `lr=2e-5`, `epochs=10`, `batch_size=64`, `warmup_steps=500`
 - Bootstrapped 95% confidence intervals use 500 iterations with replacement
 - LLM API evaluation uses deterministic sampling (temperature=0 where supported)
 - Few-shot examples are drawn from the **training set** only (never from test)

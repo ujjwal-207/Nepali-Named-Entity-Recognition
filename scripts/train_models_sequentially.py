@@ -17,28 +17,22 @@ MODELS = {
         "batch_size": 64,
         "max_length": 64,
         "epochs": 10,
-        "description": "Multilingual BERT (Google)",
-        "ram_usage": "4-5GB",
-        "training_time": "5-6 hours"
+        "description": "Multilingual BERT (mBERT)",
     },
     "xlm-roberta": {
-        "name": "xlm-roberta-base", 
+        "name": "xlm-roberta-base",
         "batch_size": 64,
         "max_length": 64,
         "epochs": 10,
-        "description": "XLM-RoBERTa Base (Facebook)",
-        "ram_usage": "6-7GB",
-        "training_time": "12-15 hours"
+        "description": "XLM-RoBERTa Base",
     },
     "distilbert": {
         "name": "distilbert-base-multilingual-cased",
         "batch_size": 64,
         "max_length": 64,
         "epochs": 10,
-        "description": "DistilBERT Multilingual (HuggingFace)",
-        "ram_usage": "3-4GB",
-        "training_time": "4-5 hours"
-    }
+        "description": "DistilBERT Multilingual",
+    },
 }
 
 PROGRESS_FILE = Path("models/baseline/training_progress.json")
@@ -80,7 +74,7 @@ def train_single_model(model_key, config):
             output_dir=Path("models/baseline") / model_key,
             max_length=config['max_length'],
             batch_size=config['batch_size'],
-            learning_rate=3e-5,
+            learning_rate=2e-5,
             num_epochs=config['epochs'],
             seed=42
         )

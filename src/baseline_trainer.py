@@ -134,9 +134,9 @@ class NERTrainer:
         data_dir: Path = Path("data/raw"),
         output_dir: Path = Path("models/baseline"),
         max_length: int = 64,
-        batch_size: int = 16,
-        learning_rate: float = 3e-5,
-        num_epochs: int = 5,
+        batch_size: int = 64,
+        learning_rate: float = 2e-5,
+        num_epochs: int = 10,
         seed: int = 42,
     ) -> None:
         """Configure the training pipeline.
@@ -340,7 +340,7 @@ class NERTrainer:
             per_device_eval_batch_size=self.batch_size,
             learning_rate=self.learning_rate,
             weight_decay=0.01,
-            warmup_steps=100,
+            warmup_steps=500,
             logging_steps=50,
             eval_strategy="epoch",
             save_strategy="epoch",
@@ -365,7 +365,7 @@ class NERTrainer:
             processing_class=self.tokenizer,
             data_collator=data_collator,
             compute_metrics=self.compute_metrics,
-            callbacks=[EarlyStoppingCallback(early_stopping_patience=2)],
+            callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
         )
 
         trainer.train()
@@ -460,19 +460,19 @@ def main() -> None:
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=16,
+        default=64,
         help="Training and evaluation batch size.",
     )
     parser.add_argument(
         "--learning_rate",
         type=float,
-        default=3e-5,
+        default=2e-5,
         help="Initial learning rate.",
     )
     parser.add_argument(
         "--num_epochs",
         type=int,
-        default=5,
+        default=10,
         help="Maximum number of training epochs.",
     )
     parser.add_argument(

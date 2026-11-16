@@ -1,0 +1,167 @@
+{
+  "mbert": {
+    "model_name": "bert-base-multilingual-cased",
+    "description": "Multilingual BERT (Google)",
+    "training_time_hours": 0.23,
+    "training_time_minutes": 13.7,
+    "timestamp_start": "2026-07-07 10:26:25",
+    "timestamp_end": "2026-07-07 10:40:04",
+    "settings": {
+      "batch_size": 64,
+      "max_length": 64,
+      "epochs": 10
+    },
+    "results": {
+      "precision": 0.854920634920635,
+      "recall": 0.895279255319149,
+      "f1": 0.8746346216303995,
+      "accuracy": 0.9761688543988553,
+      "per_entity": {
+        "Person": {
+          "precision": 0.9232876712328767,
+          "recall": 0.9216043755697356,
+          "f1": 0.9224452554744526,
+          "support": 1097
+        },
+        "Location": {
+          "precision": 0.8252551020408163,
+          "recall": 0.9048951048951049,
+          "f1": 0.8632421614409606,
+          "support": 715
+        },
+        "Organization": {
+          "precision": 0.8110944527736131,
+          "recall": 0.8587301587301587,
+          "f1": 0.8342328450269852,
+          "support": 630
+        },
+        "Date": {
+          "precision": 0.850091407678245,
+          "recall": 0.8976833976833977,
+          "f1": 0.8732394366197184,
+          "support": 518
+        },
+        "Event": {
+          "precision": 0.5087719298245614,
+          "recall": 0.6041666666666666,
+          "f1": 0.5523809523809524,
+          "support": 48
+        }
+      },
+      "f1_ci_low": 0.8618421052631579,
+      "f1_ci_high": 0.8864516129032258,
+      "f1_margin": 0.012304753820033987
+    },
+    "status": "success"
+  },
+  "xlm-roberta": {
+    "model_name": "xlm-roberta-base",
+    "description": "XLM-RoBERTa Base (Facebook)",
+    "training_time_hours": 0.26,
+    "training_time_minutes": 15.8,
+    "timestamp_start": "2026-07-07 11:00:11",
+    "timestamp_end": "2026-07-07 11:16:01",
+    "settings": {
+      "batch_size": 64,
+      "max_length": 64,
+      "epochs": 10
+    },
+    "results": {
+      "precision": 0.8847332924586143,
+      "recall": 0.9282727565133484,
+      "f1": 0.9059802228849474,
+      "accuracy": 0.9823645345414523,
+      "per_entity": {
+        "Person": {
+          "precision": 0.9531656548135299,
+          "recall": 0.9589877835951134,
+          "f1": 0.9560678555893867,
+          "support": 1146
+        },
+        "Location": {
+          "precision": 0.8578745198463509,
+          "recall": 0.9228650137741047,
+          "f1": 0.8891838088918382,
+          "support": 726
+        },
+        "Organization": {
+          "precision": 0.8514285714285714,
+          "recall": 0.9127105666156202,
+          "f1": 0.8810051736881005,
+          "support": 653
+        },
+        "Date": {
+          "precision": 0.8677248677248677,
+          "recall": 0.917910447761194,
+          "f1": 0.8921124206708975,
+          "support": 536
+        },
+        "Event": {
+          "precision": 0.47540983606557374,
+          "recall": 0.6041666666666666,
+          "f1": 0.5321100917431192,
+          "support": 48
+        }
+      },
+      "f1_ci_low": 0.8951027344353468,
+      "f1_ci_high": 0.915873015873016,
+      "f1_margin": 0.010385140718834562
+    },
+    "status": "success"
+  },
+  "distilbert": {
+    "model_name": "distilbert-base-multilingual-cased",
+    "description": "DistilBERT Multilingual (HuggingFace)",
+    "training_time_hours": 0.2,
+    "training_time_minutes": 11.9,
+    "timestamp_start": "2026-07-07 15:13:25",
+    "timestamp_end": "2026-07-07 15:25:18",
+    "settings": {
+      "batch_size": 64,
+      "max_length": 64,
+      "epochs": 10
+    },
+    "results": {
+      "precision": 0.8052598622417032,
+      "recall": 0.8550531914893617,
+      "f1": 0.8294098677845857,
+      "accuracy": 0.9709127934175403,
+      "per_entity": {
+        "Person": {
+          "precision": 0.8655387355298308,
+          "recall": 0.886052871467639,
+          "f1": 0.8756756756756757,
+          "support": 1097
+        },
+        "Location": {
+          "precision": 0.7984084880636605,
+          "recall": 0.8419580419580419,
+          "f1": 0.8196051735874745,
+          "support": 715
+        },
+        "Organization": {
+          "precision": 0.7184873949579832,
+          "recall": 0.8142857142857143,
+          "f1": 0.7633928571428573,
+          "support": 630
+        },
+        "Date": {
+          "precision": 0.8375451263537906,
+          "recall": 0.8957528957528957,
+          "f1": 0.8656716417910448,
+          "support": 518
+        },
+        "Event": {
+          "precision": 0.42857142857142855,
+          "recall": 0.4375,
+          "f1": 0.43298969072164945,
+          "support": 48
+        }
+      },
+      "f1_ci_low": 0.8141533277169335,
+      "f1_ci_high": 0.8434598468805995,
+      "f1_margin": 0.014653259581833
+    },
+    "status": "success"
+  }
+}

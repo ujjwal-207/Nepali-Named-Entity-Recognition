@@ -34,8 +34,8 @@ def evaluate_model(model_dir: Path, model_key: str):
             data_dir=Path("data/raw"),
             output_dir=model_dir,
             max_length=64,
-            batch_size=4,
-            seed=42
+            batch_size=64,
+            seed=42,
         )
         
         trainer.load_data()
@@ -53,7 +53,8 @@ def evaluate_model(model_dir: Path, model_key: str):
             model=model,
             args=TrainingArguments(
                 output_dir=str(model_dir),
-                per_device_eval_batch_size=4
+                per_device_eval_batch_size=64,
+                report_to="none",
             ),
             compute_metrics=trainer.compute_metrics,
         )
