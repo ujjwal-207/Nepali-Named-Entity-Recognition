@@ -109,22 +109,20 @@ Generative decoder-only models fine-tuned with 4-bit QLoRA for instruction-follo
 
 ## LLM API Evaluation
 
-Evaluates frontier LLMs via API on the EverestNER test set. Compares using **seqeval** (same metric as baseline models).
+Evaluates frontier LLMs via OpenRouter and direct APIs on the EverestNER held-out test set ($N = 2{,}078$). Compares using **seqeval** strict entity-level matching (same metric as baseline encoder models) across **0-shot, 5-shot, and 10-shot** configurations.
 
-| CLI Key | Model |
-|---------|-------|
-| `gpt4` | GPT-4 Turbo Preview |
-| `claude` | Claude 3.5 Sonnet |
-| `gemini` | Gemini 2.0 Flash |
-| `groq-llama` | LLaMA 3.3 70B (Groq) |
-| `groq-mixtral` | Mixtral 8x7B (Groq) |
-| `mistral` | Mistral Large |
+| Model | OpenRouter Endpoint | 0-Shot F1 (%) | 5-Shot F1 (%) | 10-Shot F1 (%) |
+|-------|---------------------|:-------------:|:-------------:|:--------------:|
+| **Llama 3.3 70B Instruct** | `meta-llama/llama-3.3-70b-instruct` | 67.53 ± 1.88 | **70.78 ± 1.77** | 70.27 ± 1.94 |
+| **GPT-4o-mini** | `openai/gpt-4o-mini` | 53.85 ± 2.20 | 58.58 ± 2.27 | **65.12 ± 2.03** |
+| **Qwen 2.5 72B Instruct** | `qwen/qwen-2.5-72b-instruct` | 57.38 ± 1.76 | **63.26 ± 1.86** | 63.10 ± 1.92 |
+| **Llama 3.1 8B Instruct** | `meta-llama/llama-3.1-8b-instruct` | 35.98 ± 1.66 | **52.97 ± 2.14** | 45.72 ± 2.38 |
 
 **Features:**
-- 0-shot and few-shot (k-shot) prompting
-- Entity-level BIO alignment from free-form JSON responses
-- Per-sample audit logs (JSONL) with tokens, predictions, raw output, latency, token counts
-- Tracks API failures, parse failures, and cost
+- 0-shot, 5-shot, and 10-shot in-context prompting with automatic checkpointing & resume
+- Deterministic greedy longest-match entity-level BIO alignment from JSON responses
+- Per-sample audit logs (JSONL) with tokens, predictions, raw output, latency, token counts, and 95% bootstrap confidence intervals
+- Paired sentence-level bootstrap significance testing (`scripts/compute_paired_significance.py`)
 
 ---
 

@@ -4,7 +4,8 @@ Paired sentence-level bootstrap significance testing for Nepali NER evaluations.
 
 Implements non-parametric paired bootstrap resampling (Koehn, 2004;
 Berg-Kirkpatrick et al., 2012) across the N=2,078 held-out test sentences
-to compute empirical p-values and 95% confidence intervals for Delta F1.
+to compute empirical p-values and 95% confidence intervals for Delta F1
+across 0-shot, 5-shot, and 10-shot generative LLM configurations.
 """
 
 import json
@@ -15,25 +16,47 @@ import numpy as np
 from seqeval.metrics.sequence_labeling import get_entities
 
 EVAL_FILES: Dict[str, str] = {
+    "Llama 3.3 70B (10-shot)": "results/llm_api/meta-llama_llama-3.3-70b-instruct_shots10_n2078_seed42.jsonl",
     "Llama 3.3 70B (5-shot)": "results/llm_api/meta-llama_llama-3.3-70b-instruct_shots5_n2078_seed42.jsonl",
     "Llama 3.3 70B (0-shot)": "results/llm_api/meta-llama_llama-3.3-70b-instruct_shots0_n2078_seed42.jsonl",
+    "Qwen 2.5 72B (10-shot)": "results/llm_api/qwen_qwen-2.5-72b-instruct_shots10_n2078_seed42.jsonl",
     "Qwen 2.5 72B (5-shot)": "results/llm_api/qwen_qwen-2.5-72b-instruct_shots5_n2078_seed42.jsonl",
     "Qwen 2.5 72B (0-shot)": "results/llm_api/qwen_qwen-2.5-72b-instruct_shots0_n2078_seed42.jsonl",
+    "GPT-4o-mini (10-shot)": "results/llm_api/openai_gpt-4o-mini_shots10_n2078_seed42.jsonl",
     "GPT-4o-mini (5-shot)": "results/llm_api/openai_gpt-4o-mini_shots5_n2078_seed42.jsonl",
     "GPT-4o-mini (0-shot)": "results/llm_api/openai_gpt-4o-mini_shots0_n2078_seed42.jsonl",
+    "Llama 3.1 8B (10-shot)": "results/llm_api/meta-llama_llama-3.1-8b-instruct_shots10_n2078_seed42.jsonl",
     "Llama 3.1 8B (5-shot)": "results/llm_api/meta-llama_llama-3.1-8b-instruct_shots5_n2078_seed42.jsonl",
     "Llama 3.1 8B (0-shot)": "results/llm_api/meta-llama_llama-3.1-8b-instruct_shots0_n2078_seed42.jsonl",
 }
 
 COMPARISONS: List[Tuple[str, str]] = [
+    # Intra-family shot scaling: 5-shot vs 0-shot
     ("Llama 3.3 70B (5-shot)", "Llama 3.3 70B (0-shot)"),
     ("Qwen 2.5 72B (5-shot)", "Qwen 2.5 72B (0-shot)"),
     ("GPT-4o-mini (5-shot)", "GPT-4o-mini (0-shot)"),
     ("Llama 3.1 8B (5-shot)", "Llama 3.1 8B (0-shot)"),
+    # Intra-family shot scaling: 10-shot vs 0-shot
+    ("Llama 3.3 70B (10-shot)", "Llama 3.3 70B (0-shot)"),
+    ("Qwen 2.5 72B (10-shot)", "Qwen 2.5 72B (0-shot)"),
+    ("GPT-4o-mini (10-shot)", "GPT-4o-mini (0-shot)"),
+    ("Llama 3.1 8B (10-shot)", "Llama 3.1 8B (0-shot)"),
+    # Intra-family shot scaling: 10-shot vs 5-shot
+    ("Llama 3.3 70B (10-shot)", "Llama 3.3 70B (5-shot)"),
+    ("Qwen 2.5 72B (10-shot)", "Qwen 2.5 72B (5-shot)"),
+    ("GPT-4o-mini (10-shot)", "GPT-4o-mini (5-shot)"),
+    ("Llama 3.1 8B (10-shot)", "Llama 3.1 8B (5-shot)"),
+    # Cross-family comparisons (5-shot)
     ("Llama 3.3 70B (5-shot)", "Qwen 2.5 72B (5-shot)"),
     ("Llama 3.3 70B (5-shot)", "GPT-4o-mini (5-shot)"),
     ("Qwen 2.5 72B (5-shot)", "GPT-4o-mini (5-shot)"),
     ("Llama 3.3 70B (5-shot)", "Llama 3.1 8B (5-shot)"),
+    # Cross-family comparisons (10-shot & peak configurations)
+    ("Llama 3.3 70B (10-shot)", "GPT-4o-mini (10-shot)"),
+    ("Llama 3.3 70B (10-shot)", "Qwen 2.5 72B (10-shot)"),
+    ("GPT-4o-mini (10-shot)", "Qwen 2.5 72B (10-shot)"),
+    ("GPT-4o-mini (10-shot)", "Qwen 2.5 72B (5-shot)"),
+    ("Llama 3.3 70B (5-shot)", "GPT-4o-mini (10-shot)"),
 ]
 
 
@@ -79,7 +102,7 @@ def main(n_iterations: int = 10000, seed: int = 42) -> None:
         diff = boot_f1[model_a] - boot_f1[model_b]
         point_diff = point_f1[model_a] - point_f1[model_b]
         ci_low, ci_high = np.percentile(diff, [2.5, 97.5])
-        p_one_sided = float(np.mean(diff <= 0))
+        p_one_sided = float(np.mean(diff <= 0)) if point_diff >= 0 else float(np.mean(diff >= 0))
         p_two_sided = float(2 * min(np.mean(diff <= 0), np.mean(diff >= 0)))
 
         results.append({
@@ -89,8 +112,8 @@ def main(n_iterations: int = 10000, seed: int = 42) -> None:
             "f1_b_pct": round(point_f1[model_b], 2),
             "delta_f1_pct": round(point_diff, 2),
             "paired_95_ci_pct": [round(float(ci_low), 2), round(float(ci_high), 2)],
-            "p_value_one_sided": p_one_sided,
-            "p_value_two_sided": p_two_sided,
+            "p_value_one_sided": round(p_one_sided, 6),
+            "p_value_two_sided": round(p_two_sided, 6),
             "n_iterations": n_iterations,
             "n_sentences": n_sentences,
             "seed": seed,
@@ -102,6 +125,11 @@ def main(n_iterations: int = 10000, seed: int = 42) -> None:
         json.dump(results, f, indent=2)
 
     print(f"Saved paired bootstrap significance results to {out_path}")
+    for r in results:
+        print(
+            f"{r['model_a']:25} vs {r['model_b']:25} | "
+            f"dF1={r['delta_f1_pct']:+6.2f}% | CI={r['paired_95_ci_pct']} | p(2-sided)={r['p_value_two_sided']:.4f}"
+        )
 
 
 if __name__ == "__main__":

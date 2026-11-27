@@ -64,6 +64,134 @@
     "seed": 42
   },
   {
+    "model_a": "Llama 3.3 70B (10-shot)",
+    "model_b": "Llama 3.3 70B (0-shot)",
+    "f1_a_pct": 70.27,
+    "f1_b_pct": 67.53,
+    "delta_f1_pct": 2.74,
+    "paired_95_ci_pct": [
+      0.79,
+      4.52
+    ],
+    "p_value_one_sided": 0.0039,
+    "p_value_two_sided": 0.0078,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
+    "model_a": "Qwen 2.5 72B (10-shot)",
+    "model_b": "Qwen 2.5 72B (0-shot)",
+    "f1_a_pct": 63.1,
+    "f1_b_pct": 57.38,
+    "delta_f1_pct": 5.72,
+    "paired_95_ci_pct": [
+      3.67,
+      7.58
+    ],
+    "p_value_one_sided": 0.0,
+    "p_value_two_sided": 0.0,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
+    "model_a": "GPT-4o-mini (10-shot)",
+    "model_b": "GPT-4o-mini (0-shot)",
+    "f1_a_pct": 65.12,
+    "f1_b_pct": 53.85,
+    "delta_f1_pct": 11.28,
+    "paired_95_ci_pct": [
+      8.95,
+      13.56
+    ],
+    "p_value_one_sided": 0.0,
+    "p_value_two_sided": 0.0,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
+    "model_a": "Llama 3.1 8B (10-shot)",
+    "model_b": "Llama 3.1 8B (0-shot)",
+    "f1_a_pct": 45.72,
+    "f1_b_pct": 35.98,
+    "delta_f1_pct": 9.73,
+    "paired_95_ci_pct": [
+      7.32,
+      12.15
+    ],
+    "p_value_one_sided": 0.0,
+    "p_value_two_sided": 0.0,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
+    "model_a": "Llama 3.3 70B (10-shot)",
+    "model_b": "Llama 3.3 70B (5-shot)",
+    "f1_a_pct": 70.27,
+    "f1_b_pct": 70.78,
+    "delta_f1_pct": -0.51,
+    "paired_95_ci_pct": [
+      -2.23,
+      1.01
+    ],
+    "p_value_one_sided": 0.2816,
+    "p_value_two_sided": 0.5632,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
+    "model_a": "Qwen 2.5 72B (10-shot)",
+    "model_b": "Qwen 2.5 72B (5-shot)",
+    "f1_a_pct": 63.1,
+    "f1_b_pct": 63.26,
+    "delta_f1_pct": -0.16,
+    "paired_95_ci_pct": [
+      -2.09,
+      1.51
+    ],
+    "p_value_one_sided": 0.45,
+    "p_value_two_sided": 0.9,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
+    "model_a": "GPT-4o-mini (10-shot)",
+    "model_b": "GPT-4o-mini (5-shot)",
+    "f1_a_pct": 65.12,
+    "f1_b_pct": 58.58,
+    "delta_f1_pct": 6.54,
+    "paired_95_ci_pct": [
+      4.63,
+      8.33
+    ],
+    "p_value_one_sided": 0.0,
+    "p_value_two_sided": 0.0,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
+    "model_a": "Llama 3.1 8B (10-shot)",
+    "model_b": "Llama 3.1 8B (5-shot)",
+    "f1_a_pct": 45.72,
+    "f1_b_pct": 52.97,
+    "delta_f1_pct": -7.25,
+    "paired_95_ci_pct": [
+      -9.55,
+      -4.98
+    ],
+    "p_value_one_sided": 0.0,
+    "p_value_two_sided": 0.0,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
     "model_a": "Llama 3.3 70B (5-shot)",
     "model_b": "Qwen 2.5 72B (5-shot)",
     "f1_a_pct": 70.78,
@@ -120,6 +248,86 @@
     "paired_95_ci_pct": [
       15.76,
       19.95
+    ],
+    "p_value_one_sided": 0.0,
+    "p_value_two_sided": 0.0,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
+    "model_a": "Llama 3.3 70B (10-shot)",
+    "model_b": "GPT-4o-mini (10-shot)",
+    "f1_a_pct": 70.27,
+    "f1_b_pct": 65.12,
+    "delta_f1_pct": 5.15,
+    "paired_95_ci_pct": [
+      3.43,
+      6.91
+    ],
+    "p_value_one_sided": 0.0,
+    "p_value_two_sided": 0.0,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
+    "model_a": "Llama 3.3 70B (10-shot)",
+    "model_b": "Qwen 2.5 72B (10-shot)",
+    "f1_a_pct": 70.27,
+    "f1_b_pct": 63.1,
+    "delta_f1_pct": 7.17,
+    "paired_95_ci_pct": [
+      5.6,
+      8.74
+    ],
+    "p_value_one_sided": 0.0,
+    "p_value_two_sided": 0.0,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
+    "model_a": "GPT-4o-mini (10-shot)",
+    "model_b": "Qwen 2.5 72B (10-shot)",
+    "f1_a_pct": 65.12,
+    "f1_b_pct": 63.1,
+    "delta_f1_pct": 2.03,
+    "paired_95_ci_pct": [
+      0.12,
+      3.94
+    ],
+    "p_value_one_sided": 0.0193,
+    "p_value_two_sided": 0.0386,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
+    "model_a": "GPT-4o-mini (10-shot)",
+    "model_b": "Qwen 2.5 72B (5-shot)",
+    "f1_a_pct": 65.12,
+    "f1_b_pct": 63.26,
+    "delta_f1_pct": 1.87,
+    "paired_95_ci_pct": [
+      -0.62,
+      4.14
+    ],
+    "p_value_one_sided": 0.0682,
+    "p_value_two_sided": 0.1364,
+    "n_iterations": 10000,
+    "n_sentences": 2078,
+    "seed": 42
+  },
+  {
+    "model_a": "Llama 3.3 70B (5-shot)",
+    "model_b": "GPT-4o-mini (10-shot)",
+    "f1_a_pct": 70.78,
+    "f1_b_pct": 65.12,
+    "delta_f1_pct": 5.66,
+    "paired_95_ci_pct": [
+      3.6,
+      7.86
     ],
     "p_value_one_sided": 0.0,
     "p_value_two_sided": 0.0,
